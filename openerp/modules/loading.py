@@ -45,7 +45,7 @@ from openerp.modules.module import initialize_sys_path, \
     load_openerp_module, init_module_models, adapt_version
 from module import runs_post_install
 
-from openerp.openupgrade import openupgrade_loading, deferred_80
+from openerp.openupgrade import openupgrade_loading, deferred_80, apriori
 
 _logger = logging.getLogger(__name__)
 _test_logger = logging.getLogger('openerp.tests')
@@ -339,6 +339,10 @@ def load_modules(db, force_demo=False, status=None, update_module=False):
         # STEP 2: Mark other modules to be loaded/updated
         if update_module:
             modobj = registry['ir.module.module']
+
+            # Call the apriori execution here, before any module update.
+            apriori.migrate_apriori(cr)
+
             if ('base' in tools.config['init']) or ('base' in tools.config['update']):
                 _logger.info('updating modules list')
                 modobj.update_list(cr, SUPERUSER_ID)
